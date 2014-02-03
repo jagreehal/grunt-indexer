@@ -16,7 +16,6 @@ module.exports = function(grunt){
 		jshint: {
 			all: [
 				'Gruntfile.js',
-				'tasks/*.js',
 				'tasks/**/*.js',
 				'<%= nodeunit.tests %>'
 			],
@@ -39,6 +38,15 @@ module.exports = function(grunt){
 				},
 				src: ['test/fixtures/index.html'],
 				dest: 'tmp/default/index.html'
+			},
+			custom_options: {
+				options: {
+					root: 'test/',
+					containerClass: 'custom',
+					folder: 'fixtures/examples'
+				},
+				src: ['test/fixtures/index.html'],
+				dest: 'tmp/custom/index.html'
 			}
 		},
 
@@ -48,7 +56,7 @@ module.exports = function(grunt){
 		},
 		watch: {
 			scripts: {
-				files: ['<%= jshint.all %>'],
+				files: ['<%= jshint.all %>', 'test/**/*.html'],
 				tasks: ['clean', 'indexer', 'nodeunit']
 			}
 		}

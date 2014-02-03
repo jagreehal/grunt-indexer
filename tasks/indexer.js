@@ -17,7 +17,8 @@ module.exports = function(grunt){
 		var done = this.async();
 		var options = this.options({
 			root: './',
-			folder: 'examples'
+			folder: 'examples',
+			containerClass: 'indexer'
 		});
 
 		var generator = new OutputGenerator(options);
@@ -39,25 +40,26 @@ module.exports = function(grunt){
 		};
 
 		if(this.files.length === 0){
-			grunt.fail.fatal('Please specify an template file');
+			grunt.fail.fatal('Please specify a template file');
 		}
 
-		// Iterate over all specified file groups.
 		this.files.forEach(function(file){
-			var templatePath = options.root + file.src;
-			if(! grunt.file.exists(templatePath)){
-				grunt.warn.fatal('No template found at: ' + templatePath);
+
+			var templatePath = './' + file.src;
+			if(!grunt.file.exists(templatePath)){
+				grunt.fail.fatal('No template found at: ' + templatePath);
 			}
+
 			// This will be held in memory!
-			var template = grunt.file.read(options.root + file.src);
+			var template = grunt.file.read(templatePath);
 
 			var directoryPath = options.root + path.dirname(file).split('/') + '/' + options.folder;
 			if(! grunt.file.isDir(directoryPath)){
-				grunt.warn.fatal(directoryPath + ' is not a valid directory');
+				grunt.fail.fatal(directoryPath + ' is not a valid directory');
 			}
 
 			directoryObjectBuilder(directoryPath, function(directories){
-				var outputPath = options.root + file.dest;
+				var outputPath = file.dest;
 				var output = grunt.template.process(template, {data: {content: generator.all(directories)}});
 
 				grunt.file.write(outputPath, output);
