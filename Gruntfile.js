@@ -35,19 +35,10 @@ module.exports = function(grunt){
 		indexer: {
 			default_options: {
 				options: {
+					folder: 'test/fixtures/examples'
 				},
-				files: {
-					'tmp/default_options': ['test/fixtures/testing', 'test/fixtures/123']
-				}
-			},
-			custom_options: {
-				options: {
-					separator: ': ',
-					punctuation: ' !!!'
-				},
-				files: {
-					'tmp/custom_options': ['test/fixtures/testing', 'test/fixtures/123']
-				}
+				src: ['test/fixtures/index.html'],
+				dest: 'tmp/default/index.html'
 			}
 		},
 

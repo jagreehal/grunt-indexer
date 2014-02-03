@@ -1,6 +1,6 @@
 /*
  * grunt-indexer
- * https://github.com/jagreehal/grunt-indexer
+ * 
  *
  * Copyright (c) 2014 Jag Reehal
  * Licensed under the MIT license.
@@ -8,43 +8,62 @@
 
 'use strict';
 
-module.exports = function(grunt) {
+module.exports = function(grunt){
+	var OutputGenerator = require('./lib/output-generator');
+	var path = require('path');
 
-  // Please see the Grunt documentation for more information regarding task
-  // creation: http://gruntjs.com/creating-tasks
 
-  grunt.registerMultiTask('indexer', 'The best Grunt plugin ever.', function() {
-    // Merge task-specific and/or target-specific options with these defaults.
-    var options = this.options({
-      punctuation: '.',
-      separator: ', '
-    });
+	grunt.registerMultiTask('indexer', 'Index all your examples', function(){
+		var done = this.async();
+		var options = this.options({
+			root: './',
+			folder: 'examples'
+		});
 
-    // Iterate over all specified file groups.
-    this.files.forEach(function(f) {
-      // Concat specified files.
-      var src = f.src.filter(function(filepath) {
-        // Warn on and remove invalid source files (if nonull was set).
-        if (!grunt.file.exists(filepath)) {
-          grunt.log.warn('Source file "' + filepath + '" not found.');
-          return false;
-        } else {
-          return true;
-        }
-      }).map(function(filepath) {
-        // Read file source.
-        return grunt.file.read(filepath);
-      }).join(grunt.util.normalizelf(options.separator));
+		var generator = new OutputGenerator(options);
 
-      // Handle options.
-      src += options.punctuation;
+		var directoryObjectBuilder = function(directoryPath, callback){
+			var directories = {};
+			grunt.file.recurse(directoryPath, function(abspath, rootdir, subdir, filename){
+				if(filename.split('.').pop() === "html"){
+					if(! directories[subdir]){
+						directories[subdir] = {files: []};
+					}
+					directories[subdir].files.push({
+						'link': abspath.replace(options.root, ''),
+						'filename': filename
+					});
+				}
+			});
+			callback(directories);
+		};
 
-      // Write the destination file.
-      grunt.file.write(f.dest, src);
+		if(this.files.length === 0){
+			grunt.fail.fatal('Please specify an template file');
+		}
 
-      // Print a success message.
-      grunt.log.writeln('File "' + f.dest + '" created.');
-    });
-  });
+		// Iterate over all specified file groups.
+		this.files.forEach(function(file){
+			var templatePath = options.root + file.src;
+			if(! grunt.file.exists(templatePath)){
+				grunt.warn.fatal('No template found at: ' + templatePath);
+			}
+			// This will be held in memory!
+			var template = grunt.file.read(options.root + file.src);
 
+			var directoryPath = options.root + path.dirname(file).split('/') + '/' + options.folder;
+			if(! grunt.file.isDir(directoryPath)){
+				grunt.warn.fatal(directoryPath + ' is not a valid directory');
+			}
+
+			directoryObjectBuilder(directoryPath, function(directories){
+				var outputPath = options.root + file.dest;
+				var output = grunt.template.process(template, {data: {content: generator.all(directories)}});
+
+				grunt.file.write(outputPath, output);
+				grunt.log.ok('Indexed file "' + outputPath + '" created.');
+				done();
+			});
+		});
+	});
 };
