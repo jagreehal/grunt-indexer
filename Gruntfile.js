@@ -8,7 +8,7 @@
 
 'use strict';
 
-module.exports=function(grunt){
+module.exports = function(grunt){
 	// load all npm grunt tasks
 	require('load-grunt-tasks')(grunt);
 	// Project configuration.
@@ -17,6 +17,7 @@ module.exports=function(grunt){
 			all: [
 				'Gruntfile.js',
 				'tasks/*.js',
+				'tasks/**/*.js',
 				'<%= nodeunit.tests %>'
 			],
 			options: {
@@ -52,11 +53,11 @@ module.exports=function(grunt){
 
 		// Unit tests.
 		nodeunit: {
-			tests: ['test/*_test.js']
+			tests: ['test/**/*_test.js']
 		},
 		watch: {
 			scripts: {
-				files: ['tasks/**/*.js', 'test/**/*.js'],
+				files: ['<%= jshint.all %>'],
 				tasks: ['clean', 'indexer', 'nodeunit']
 			}
 		}
