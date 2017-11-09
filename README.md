@@ -1,5 +1,7 @@
 # grunt-indexer
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/jagreehal/grunt-indexer.svg)](https://greenkeeper.io/)
+
 > The best Grunt plugin ever.
 
 ## Getting Started
